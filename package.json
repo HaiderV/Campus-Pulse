@@ -1,0 +1,33 @@
+{
+  "name": "campus-pulse",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "description": "College feedback sentiment analysis",
+  "scripts": {
+    "postinstall": "node scripts/vendor.mjs",
+    "start": "node backend/server.mjs",
+    "dev": "node --watch backend/server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser.smoke.mjs",
+    "check": "node --check frontend/app.js && node --check backend/server.mjs"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/manrope": "^5.2.8",
+    "chart.js": "^4.5.1",
+    "csv-parse": "^7.0.3",
+    "csv-stringify": "^6.6.0",
+    "express": "^5.1.0",
+    "lucide": "^1.62.0",
+    "ml-logistic-regression": "^2.0.0",
+    "ml-matrix": "^6.12.1",
+    "natural": "^8.1.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}

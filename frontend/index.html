@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#087f73" />
+    <title>Campus Pulse | Student Feedback</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script defer src="/static/vendor/lucide.min.js"></script>
+    <script defer src="/static/vendor/chart.umd.js"></script>
+    <script defer src="/static/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="#dashboard" aria-label="Campus Pulse home">
+          <span class="brand-icon"><i data-lucide="audio-lines"></i></span>
+          <span
+            >campus<span class="brand-light">pulse</span
+            ><small>STUDENT EXPERIENCE</small></span
+          >
+        </a>
+        <div class="workspace-label">WORKSPACE</div>
+        <nav aria-label="Main navigation">
+          <a class="nav-link active" data-view="dashboard" href="#dashboard"
+            ><i data-lucide="layout-dashboard"></i>Overview<span
+              class="nav-active-dot"
+            ></span
+          ></a>
+          <a class="nav-link" data-view="feedback" href="#feedback"
+            ><i data-lucide="messages-square"></i>All feedback<span
+              class="nav-count"
+              id="nav-count"
+              >0</span
+            ></a
+          >
+          <a class="nav-link" data-view="submit" href="#submit"
+            ><i data-lucide="square-pen"></i>Submit feedback</a
+          >
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="campus-stamp">
+            <i data-lucide="university"></i>
+            <div>Your campus.<br /><strong>Your voice.</strong></div>
+            <span class="stamp-line"></span>
+          </div>
+          <button class="model-link" id="model-button">
+            <span class="model-dot"></span>Sentiment model<i
+              data-lucide="info"
+            ></i>
+          </button>
+          <div class="sidebar-profile">
+            <div class="avatar">CP</div>
+            <div>
+              <strong>Campus workspace</strong><small>Local project</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="main-shell">
+        <header class="topbar">
+          <button
+            class="icon-button mobile-menu"
+            id="menu-button"
+            aria-label="Toggle navigation"
+            aria-expanded="false"
+          >
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="breadcrumb">
+            Student experience <span>/</span>
+            <strong id="breadcrumb-current">Overview</strong>
+          </div>
+          <div class="topbar-right">
+            <span class="local-indicator"><span></span>Local workspace</span
+            ><span class="topbar-divider"></span>
+            <div class="avatar small-avatar" title="Local project workspace">
+              CP
+            </div>
+          </div>
+        </header>
+
+        <main id="main" tabindex="-1">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow" id="page-eyebrow">THE BIG PICTURE</p>
+              <h1 id="page-title">Feedback overview</h1>
+              <p class="page-subtitle" id="page-subtitle">
+                Every voice is a step toward a better campus.
+              </p>
+            </div>
+            <div class="heading-actions" id="dashboard-actions">
+              <button class="button secondary" id="export-button">
+                <i data-lucide="download"></i><span>Export CSV</span>
+              </button>
+              <a class="button primary" href="#submit"
+                ><i data-lucide="plus"></i>New feedback</a
+              >
+            </div>
+          </div>
+
+          <section id="data-view" aria-label="Feedback analytics">
+            <div class="demo-banner" id="demo-banner" hidden>
+              <span
+                ><i data-lucide="flask-conical"></i>You're viewing sample
+                feedback, not real student submissions.</span
+              ><button class="text-button" id="remove-demo">
+                Remove samples<i data-lucide="x"></i>
+              </button>
+            </div>
+            <div class="error-banner" id="load-error" role="alert" hidden>
+              <span id="load-error-text"></span
+              ><button class="text-button" id="retry-button">
+                Try again<i data-lucide="refresh-cw"></i>
+              </button>
+            </div>
+            <div class="filter-toolbar">
+              <div class="filter-title">
+                <i data-lucide="sliders-horizontal"></i
+                ><span>Filter feedback</span
+                ><button id="clear-filters" class="text-button" hidden>
+                  Reset
+                </button>
+              </div>
+              <div class="filter-selects">
+                <label class="select-control"
+                  ><span class="sr-only">Department</span
+                  ><select id="department-filter">
+                    <option value="">All departments</option></select
+                  ><i data-lucide="chevron-down"></i
+                ></label>
+                <label class="select-control"
+                  ><span class="sr-only">Category</span
+                  ><select id="category-filter">
+                    <option value="">All categories</option></select
+                  ><i data-lucide="chevron-down"></i
+                ></label>
+                <label class="select-control date-control"
+                  ><i data-lucide="calendar-days"></i
+                  ><span class="sr-only">Date range</span
+                  ><select id="days-filter">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                    <option value="0">All time</option></select
+                  ><i data-lucide="chevron-down"></i
+                ></label>
+                <button
+                  class="icon-button"
+                  id="refresh-button"
+                  aria-label="Refresh feedback"
+                  title="Refresh feedback"
+                >
+                  <i data-lucide="refresh-cw"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="stats-grid" id="stats-grid">
+              <article class="stat-item">
+                <div class="stat-top">
+                  <span>Total feedback</span
+                  ><span class="stat-icon total-icon"
+                    ><i data-lucide="messages-square"></i
+                  ></span>
+                </div>
+                <strong id="stat-total">0</strong
+                ><span class="stat-caption">Student voices collected</span>
+              </article>
+              <article class="stat-item">
+                <div class="stat-top">
+                  <span>Positive</span
+                  ><span class="stat-icon positive-icon"
+                    ><i data-lucide="smile"></i
+                  ></span>
+                </div>
+                <div class="stat-value">
+                  <strong id="stat-positive">0</strong
+                  ><span
+                    id="percent-positive"
+                    class="stat-percentage positive-text"
+                    >0%</span
+                  >
+                </div>
+                <span class="stat-caption">Positive experiences</span>
+              </article>
+              <article class="stat-item">
+                <div class="stat-top">
+                  <span>Neutral</span
+                  ><span class="stat-icon neutral-icon"
+                    ><i data-lucide="meh"></i
+                  ></span>
+                </div>
+                <div class="stat-value">
+                  <strong id="stat-neutral">0</strong
+                  ><span
+                    id="percent-neutral"
+                    class="stat-percentage neutral-text"
+                    >0%</span
+                  >
+                </div>
+                <span class="stat-caption">Neutral observations</span>
+              </article>
+              <article class="stat-item">
+                <div class="stat-top">
+                  <span>Negative</span
+                  ><span class="stat-icon negative-icon"
+                    ><i data-lucide="frown"></i
+                  ></span>
+                </div>
+                <div class="stat-value">
+                  <strong id="stat-negative">0</strong
+                  ><span
+                    id="percent-negative"
+                    class="stat-percentage negative-text"
+                    >0%</span
+                  >
+                </div>
+                <span class="stat-caption">Opportunities to improve</span>
+              </article>
+            </div>
+
+            <div id="analytics-view">
+              <div class="charts-grid">
+                <section class="panel distribution-panel">
+                  <div class="panel-heading">
+                    <h2>Sentiment breakdown</h2>
+                    <span
+                      class="icon-hint"
+                      tabindex="0"
+                      aria-label="Model predictions may be wrong. Review individual feedback before acting."
+                      title="Model predictions may be wrong. Review feedback before acting."
+                      ><i data-lucide="info"></i
+                    ></span>
+                  </div>
+                  <div class="distribution-body">
+                    <div class="donut-wrap">
+                      <canvas
+                        id="sentiment-chart"
+                        role="img"
+                        aria-label="Sentiment distribution chart"
+                      ></canvas>
+                      <div class="donut-center">
+                        <strong id="donut-total">0</strong
+                        ><span>responses</span>
+                      </div>
+                    </div>
+                    <div class="chart-legend" id="sentiment-legend"></div>
+                  </div>
+                  <div class="satisfaction-line">
+                    <span
+                      ><i data-lucide="heart-handshake"></i>Positive share</span
+                    ><strong id="satisfaction">0%</strong>
+                  </div>
+                </section>
+                <section class="panel trend-panel">
+                  <div class="panel-heading">
+                    <div>
+                      <h2>Feedback activity</h2>
+                      <p>
+                        Past 7 days <span class="timezone-label">/ UTC</span>
+                      </p>
+                    </div>
+                    <div class="inline-legend">
+                      <span
+                        ><b class="legend-dot positive-dot"></b>Positive</span
+                      ><span><b class="legend-dot neutral-dot"></b>Neutral</span
+                      ><span
+                        ><b class="legend-dot negative-dot"></b>Negative</span
+                      >
+                    </div>
+                  </div>
+                  <div class="trend-wrap">
+                    <canvas
+                      id="trend-chart"
+                      role="img"
+                      aria-label="Feedback counts over the past seven days"
+                    ></canvas>
+                  </div>
+                </section>
+              </div>
+              <div class="insights-grid">
+                <section class="panel categories-panel">
+                  <div class="panel-heading">
+                    <h2>Across your campus</h2>
+                    <span class="muted small-text">By category</span>
+                  </div>
+                  <div class="category-bars" id="category-bars"></div>
+                </section>
+                <section class="panel concerns-panel">
+                  <div class="panel-heading">
+                    <h2>Needs attention</h2>
+                    <span class="attention-icon"
+                      ><i data-lucide="flag"></i
+                    ></span>
+                  </div>
+                  <p class="panel-description">
+                    Categories with the most negative feedback
+                  </p>
+                  <div id="concerns-list"></div>
+                </section>
+              </div>
+            </div>
+
+            <section class="feedback-section" aria-labelledby="feedback-title">
+              <div class="feedback-heading">
+                <div class="heading-with-count">
+                  <h2 id="feedback-title">Recent feedback</h2>
+                  <span class="count-badge" id="table-count">0</span>
+                </div>
+                <a href="#feedback" class="text-button" id="view-all-link"
+                  >View all feedback<i data-lucide="arrow-up-right"></i
+                ></a>
+              </div>
+              <div class="table-toolbar">
+                <div
+                  class="segmented"
+                  role="group"
+                  aria-label="Filter by sentiment"
+                >
+                  <button
+                    data-sentiment=""
+                    class="selected"
+                    aria-pressed="true"
+                  >
+                    All feedback</button
+                  ><button data-sentiment="positive" aria-pressed="false">
+                    <span class="legend-dot positive-dot"></span
+                    >Positive</button
+                  ><button data-sentiment="neutral" aria-pressed="false">
+                    <span class="legend-dot neutral-dot"></span>Neutral</button
+                  ><button data-sentiment="negative" aria-pressed="false">
+                    <span class="legend-dot negative-dot"></span>Negative
+                  </button>
+                </div>
+                <label class="search-control"
+                  ><i data-lucide="search"></i
+                  ><input
+                    id="search-input"
+                    type="search"
+                    maxlength="200"
+                    placeholder="Search feedback..."
+                    aria-label="Search feedback"
+                /></label>
+              </div>
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">STUDENT FEEDBACK</th>
+                      <th scope="col">CATEGORY</th>
+                      <th scope="col">SENTIMENT</th>
+                      <th scope="col">
+                        SUBMITTED <i data-lucide="arrow-down"></i>
+                      </th>
+                      <th scope="col"><span class="sr-only">Details</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="feedback-body"></tbody>
+                </table>
+              </div>
+              <div class="empty-state" id="empty-state" hidden>
+                <div class="empty-icon">
+                  <i data-lucide="messages-square"></i>
+                </div>
+                <h3 id="empty-title">A fresh start for student voices</h3>
+                <p id="empty-description">
+                  No feedback has been submitted yet.
+                </p>
+                <button class="button secondary" id="load-demo">
+                  <i data-lucide="flask-conical"></i>Load sample feedback
+                </button>
+              </div>
+              <div class="table-footer">
+                <span id="pagination-label" class="muted small-text"
+                  >No responses yet</span
+                >
+                <div class="pagination">
+                  <button
+                    id="previous-page"
+                    class="icon-button"
+                    aria-label="Previous page"
+                    title="Previous page"
+                    disabled
+                  >
+                    <i data-lucide="chevron-left"></i></button
+                  ><span id="page-number">1</span
+                  ><button
+                    id="next-page"
+                    class="icon-button"
+                    aria-label="Next page"
+                    title="Next page"
+                    disabled
+                  >
+                    <i data-lucide="chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </section>
+            <div class="dashboard-footnote">
+              <span
+                ><i data-lucide="sparkles"></i>TF-IDF + Logistic Regression<span
+                  class="footnote-separator"
+                  >/</span
+                >Demo model, human review recommended</span
+              ><span id="last-updated"></span>
+            </div>
+          </section>
+
+          <section id="submit-view" hidden aria-label="Submit student feedback">
+            <div class="submission-layout">
+              <div class="submission-main">
+                <form id="feedback-form">
+                  <fieldset>
+                    <legend>What is your feedback about?</legend>
+                    <div class="category-options" id="category-options"></div>
+                  </fieldset>
+                  <label class="field-label" for="student-department"
+                    >Your department <span class="required-mark">*</span></label
+                  >
+                  <div class="form-select-wrap">
+                    <select id="student-department" name="department" required>
+                      <option value="" disabled selected>
+                        Select your department
+                      </option></select
+                    ><i data-lucide="chevron-down"></i>
+                  </div>
+                  <div class="field-label-row">
+                    <label class="field-label" for="feedback-text"
+                      >Your feedback <span class="required-mark">*</span></label
+                    ><span class="muted small-text" id="character-count"
+                      >0 / 2,000</span
+                    >
+                  </div>
+                  <textarea
+                    id="feedback-text"
+                    name="text"
+                    minlength="10"
+                    maxlength="2000"
+                    rows="6"
+                    placeholder="What's going well? What could be better?"
+                    required
+                    aria-describedby="feedback-hint"
+                  ></textarea>
+                  <p class="field-hint" id="feedback-hint">
+                    10-2,000 characters. Please leave out personal or sensitive
+                    information.
+                  </p>
+                  <label class="field-label" for="student-name"
+                    >Your name <span class="optional">Optional</span></label
+                  ><input
+                    id="student-name"
+                    name="student_name"
+                    type="text"
+                    maxlength="80"
+                    autocomplete="name"
+                    placeholder="Leave blank to stay anonymous"
+                  />
+                  <div
+                    class="form-error"
+                    id="form-error"
+                    role="alert"
+                    hidden
+                  ></div>
+                  <div class="form-actions">
+                    <span
+                      ><i data-lucide="shield-check"></i>No student ID
+                      required</span
+                    ><button
+                      class="button primary"
+                      type="submit"
+                      id="submit-button"
+                    >
+                      Submit feedback<i data-lucide="arrow-right"></i>
+                    </button>
+                  </div>
+                </form>
+                <div
+                  id="submission-success"
+                  class="submission-success"
+                  tabindex="-1"
+                  hidden
+                >
+                  <div class="success-icon"><i data-lucide="check"></i></div>
+                  <p class="eyebrow">FEEDBACK RECEIVED</p>
+                  <h2>Thanks for speaking up.</h2>
+                  <p>Your feedback is now part of the campus conversation.</p>
+                  <div id="submission-result"></div>
+                  <p class="result-caveat">
+                    This is an automated prediction, not a judgment of your
+                    feedback.
+                  </p>
+                  <div class="success-actions">
+                    <button class="button primary" id="submit-another">
+                      Submit another<i data-lucide="plus"></i></button
+                    ><a class="button secondary" href="#dashboard"
+                      >Back to overview</a
+                    >
+                  </div>
+                </div>
+              </div>
+              <aside class="submission-aside">
+                <div class="voice-art">
+                  <div class="voice-art-pattern"></div>
+                  <span class="art-icon"><i data-lucide="quote"></i></span>
+                  <h2>A better campus<br />starts with you.</h2>
+                  <div class="art-baseline">
+                    <i data-lucide="audio-lines"></i><span>CAMPUS PULSE</span>
+                  </div>
+                </div>
+                <div class="privacy-note">
+                  <i data-lucide="lock-keyhole"></i>
+                  <div>
+                    <h3>Your choice to stay anonymous</h3>
+                    <p>
+                      Your name is optional. Feedback text and department are
+                      visible in this local workspace.
+                    </p>
+                  </div>
+                </div>
+                <div class="privacy-note">
+                  <i data-lucide="heart-handshake"></i>
+                  <div>
+                    <h3>Honest. Thoughtful. Constructive.</h3>
+                    <p>
+                      Share your experience respectfully, and focus on what
+                      could make a difference.
+                    </p>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+          <footer class="page-footer">
+            <span>Campus Pulse</span
+            ><span>Small voices. Meaningful change.</span>
+          </footer>
+        </main>
+      </div>
+    </div>
+    <div class="sidebar-scrim" id="sidebar-scrim" hidden></div>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <dialog id="detail-dialog" class="dialog">
+      <div class="dialog-top">
+        <span class="eyebrow">STUDENT VOICE</span
+        ><button
+          class="icon-button dialog-close"
+          aria-label="Close feedback details"
+        >
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <h2>Feedback details</h2>
+      <div id="detail-content"></div>
+    </dialog>
+    <dialog id="model-dialog" class="dialog">
+      <div class="dialog-top">
+        <span class="eyebrow">BEHIND THE NUMBERS</span
+        ><button
+          class="icon-button dialog-close"
+          aria-label="Close model details"
+        >
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <h2>Sentiment model</h2>
+      <div id="model-content"></div>
+    </dialog>
+    <dialog id="confirm-dialog" class="dialog">
+      <div class="dialog-top">
+        <span class="eyebrow">SAMPLE FEEDBACK</span
+        ><button
+          class="icon-button dialog-close"
+          aria-label="Cancel sample removal"
+        >
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <h2>Remove sample feedback?</h2>
+      <p>
+        Only demo entries will be removed. Real student submissions will be
+        kept.
+      </p>
+      <div class="dialog-actions">
+        <button class="button secondary" id="cancel-remove">Cancel</button
+        ><button class="button danger" id="confirm-remove">
+          Remove samples
+        </button>
+      </div>
+    </dialog>
+  </body>
+</html>
